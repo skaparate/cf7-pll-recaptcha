@@ -4,6 +4,8 @@ namespace Nicomv\Cf7\Polylang\Recaptcha\Includes;
 
 /**
  * The main functionalaty of this plugin.
+ *
+ * @version 1.0.1
  */
 class Core
 {
@@ -15,13 +17,25 @@ class Core
      * if the $handle doesn't match with the one defined by contact forms 7.
      */
     public function getScriptSrc($src, $handle)
-    {
+    {   
         if ($handle !== 'google-recaptcha') {
             return $src;
         }
-        return 'https://google.com/recaptcha/api.js?hl=' . strtolower(pll_current_language());
+        
+        $lang = strtolower(pll_current_language());
+        if ('en' === $lang) {
+            return $src;
+        }
+        if (false !== strpos($src, '&hl=')) {
+            return str_replace('/&hl=../', "&hl=$lang", $src);
+        }
+        if (false !== strpos($src, '?hl=')) {
+            return str_replace('/\\?hl=../', "?hl=$lang", $src);
+        }
+        
+        return $src . '&hl=' . $lang;
     }
-    
+
     public function run()
     {
         $this->loadLang();
